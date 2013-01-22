@@ -1,12 +1,24 @@
 1. When would you use a weak entity?
 
+-- When an entity is only unique when set in the context of another entity.
 
 2. Is it better to use entities instead of attributes?
 
+-- Not better; they are used for different things. Attributes are properties
+of entities. One would use entities rather than attributes for storing a
+particular datum if:
+1) the datum's value is of direct interest; or
+2) the datum is actually composite; or
+3) the datum can have multiple instances per parent entity; or
+4) the datum is often non-existent or unknown.
 
 3. Alter and extend the music database ER model so that it can store 
 compilations, where a compilation is an album that contains tracks by two 
 or more different artists.
+
+-- See Diagram4_11.odg file. Artists and Albums are now related through
+Tracks. So to find the Artist(s) for an Album you just collate the set of
+Artists of all its Tracks.
 
 4. Create an ER diagram for an online media store using the following requirements:
  - There are two types of product: music CDs and video DVDs.
@@ -15,6 +27,8 @@ or more different artists.
    and the price. Also store the number, title, and length (in seconds) 
    of each track on the CD.
  - For each video DVD, store the title the studio name, and the price.
+
+-- See Question4Answer.odg file.
 
 Tables 4-1 and 4-2 contain some sample data to help you better understand 
 the requirements.

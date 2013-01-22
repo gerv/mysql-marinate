@@ -3,17 +3,47 @@ Homework for Chapter 2 of Learning MySQL (2006 edition), from p. 94:
 Exercises:
 1) What is command completion?
 
+-- When you type part of a command, press a special key (usually Tab) and the
+system inserts the rest of the command (or as much as it can do without
+ambiguity).
+
 2) What are the relative advantages of installing MySQL using the package,
  directory archive (tarball or "no-install", or compiled methods?
 
+-- Package is far superior for normal use, as everything is set up for you.
+You might want to compile it if you need extra options or performance, but
+that's pretty unlikely for this use case! The tarball means it's not installed
+system-wide, which means you can keep it to yourself, but the server may not
+have 
+
 3) How do you verify the integrity of downloaded packages?
 
+-- MD5 or other hash.
+
 4) How do you add the MySQL bin directory to the operating system path?
+
+-- Depends on your operating system ;-) I don't, as my package manager sets
+it all up for me.
 
 Additional Exercises (not in the book): 
 1) Document how you installed MySQL and any issues you came across with installation. 
  (The goal is to be easy to install it again on a similar machine.)
 
+-- As follows:
+
+sudo apt-get install mysql-server mysql-client
+
 2) Document where important files should be.
+
+-- dpkg -L <packagename> gives the info, for the following values of
+<packagename>:
+
+mysql-client
+mysql-client-5.5
+mysql-client-core-5.5
+mysql-common
+mysql-server
+mysql-server-5.5
+mysql-server-core-5.5
 
 Do not forget to do a pull request when your homework is complete.
