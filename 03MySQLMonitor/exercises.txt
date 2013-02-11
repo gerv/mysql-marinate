@@ -6,6 +6,9 @@ and may start and stop working without affecting the server.
 
 2. Use the monitor help to look up information on the SELECT statement. (We’ll discuss SELECT in detail in Chapter 5.)
 
+This would be done using the command:
+help SELECT
+
 3. What is the difference between using the monitor in interactive mode and using
 the monitor in batch mode?
 

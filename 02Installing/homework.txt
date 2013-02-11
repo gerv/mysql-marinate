@@ -14,7 +14,7 @@ ambiguity).
 You might want to compile it if you need extra options or performance, but
 that's pretty unlikely for this use case! The tarball means it's not installed
 system-wide, which means you can keep it to yourself, but the server may not
-have 
+have root privileges and so you can't bind to low-numbered ports.
 
 3) How do you verify the integrity of downloaded packages?
 
