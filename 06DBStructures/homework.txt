@@ -14,15 +14,42 @@ can store this information, and explain the advantages and disadvantages of your
 design. Choose the column types you need, explaining the advantages and disad-
 vantages of your choices.
 
+
 2. There are five types for storing temporal data: DATETIME, DATE, TIME, YEAR, and
 TIMESTAMP. Explain what each is used for, and give an example of a situation in
 which you would choose to use it. Note that http://palominodb.com/blog/2011/05/23/datetime-vs-timestamp
 has some useful information too.
 
+DATETIME  - Stores a date/time value (YYYYMMDD HH:MM:SS). Example: creation time
+            of an entry.
+TIMESTAMP - Like DATETIME but with additional behaviours. Setting it to NULL
+            sets it to NOW(). Also, one TIMESTAMP per table can be automatically
+            updated to NOW() when the row is modified. Example: last modification
+            time of an entry.
+DATE      - Just a date (YYYYMMDD), no time. Example: birthday.
+TIME      - Just a time (HH:MM:SS), no date. Can hold time of day or duration. Example: length of music track.
+YEAR      - Just a year (YYYY), no time or day/month. Example: year album was made.
+
+
 3. You’ve decided to use the AUTO_INCREMENT feature. List the three requirements that
 must be met by the column you’re applying it to.
 
+a) It must be indexed
+b) It must be NOT NULL
+c) It must not have a DEFAULT value
+
+I suspect also that it must be an integer, or at least a number.
+
+
 4. Why can only one column in a table have the AUTO_INCREMENT feature?
+
+The book doesn't say, and the web doesn't seem to know either:
+http://dba.stackexchange.com/questions/3467/mysql-why-is-auto-increment-limited-to-just-primary-keys
+
+"Only one auto_increment key is generated to uniquely identify a row in a table. There is not a lot of explanation behind why, but just implementation." ...
+
+However, the answer might be that it makes very little sense to have multiple columns doing AUTO_INCREMENT.
+
 
 5. Using the monitor, create a table with the following statement:
 mysql> CREATE TABLE exercise (field1 INT(3));
@@ -30,3 +57,17 @@ Using the ALTER TABLE statement, make field1 the primary key, carrying out any
 additional steps you need to make this possible. Add a second column, field2, of
 type CHAR(64) with a DEFAULT 5 clause. Create an index on a prefix of 10 characters
 from field2.
+
+ALTER TABLE exercise ADD PRIMARY KEY (field1);
+ALTER TABLE exercise ADD field2 CHAR(64) DEFAULT 5;
+ALTER TABLE exercise ADD INDEX field2 (field2(10));
+
+mysql> describe exercise;
++--------+----------+------+-----+---------+-------+
+| Field  | Type     | Null | Key | Default | Extra |
++--------+----------+------+-----+---------+-------+
+| field1 | int(3)   | NO   | PRI | 0       |       |
+| field2 | char(64) | YES  | MUL | 5       |       |
++--------+----------+------+-----+---------+-------+
+2 rows in set (0.01 sec)
+
