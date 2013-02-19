@@ -14,6 +14,41 @@ can store this information, and explain the advantages and disadvantages of your
 design. Choose the column types you need, explaining the advantages and disad-
 vantages of your choices.
 
+Collaborators
+-------------
+
+I would add a new "collaborator" table.
+
+Artist ID: artist_id SMALLINT(5) NOT NULL
+Collaborator name: collab_name CHAR(128) NOT NULL
+Start of collaboration: collab_start DATE NOT NULL
+End of collaboration: collab_end DATE DEFAULT NULL
+
+Artist ID is the same as the artist table; names in this database appear to have
+a max length of 128 so we use that. We say that it's not worth putting an entry
+in unless you know when the collaboration happened, so the artist ID, name and
+start are all mandatory, and the end can be NULL which means "ongoing". DATE
+is probably sufficiently precise :-)
+
+The question is not clear on whether you have to store the way in which they
+collaborated; if you did, I would probably use something like:
+
+Collaboration type: collab_type ENUM('Vocalist', 'Guitarist', 'Trumpeter', 'Drummer', 'Other') DEFAULT 'Other';
+
+Albums
+------
+
+I would add additional columns to the album table.
+
+Name of producer: CHAR(128) DEFAULT NULL
+When released: DATE DEFAULT NULL
+Where recorded: CHAR(128) DEFAULT NULL
+
+All of these data items are independent and optional, so they can all be NULL.
+Again, 128 is standard for a name, and seems more than enough for a place.
+It's probably not worth having a set of structured address fields - that would
+be overkill. You might instead just give year of release (YEAR).
+
 
 2. There are five types for storing temporal data: DATETIME, DATE, TIME, YEAR, and
 TIMESTAMP. Explain what each is used for, and give an example of a situation in
