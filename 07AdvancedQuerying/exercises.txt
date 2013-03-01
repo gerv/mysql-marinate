@@ -8,17 +8,141 @@ For these exercises, use the "music" database.
 1) Write a JOIN query that displays the name of each artist and the albums
 they've made. Alongside the album, display the number of tracks on the album.
 
+mysql> SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist INNER JOIN album USING (artist_id) INNER JOIN track
+USING (artist_id, album_id) GROUP BY artist_id, album_id;
++---------------------------+------------------------------------------+--------+
+| artist_name               | album_name                               | tracks |
++---------------------------+------------------------------------------+--------+
+| New Order                 | Retro - John McCready FAN                |     15 |
+| New Order                 | Substance (Disc 2)                       |     12 |
+| New Order                 | Retro - Miranda Sawyer POP               |     14 |
+| New Order                 | Retro - New Order / Bobby Gillespie LIVE |     15 |
+| New Order                 | Power, Corruption & Lies                 |      8 |
+| New Order                 | Substance 1987 (Disc 1)                  |     12 |
+| New Order                 | Brotherhood                              |     10 |
+| Nick Cave & The Bad Seeds | Let Love In                              |     10 |
+| Miles Davis               | Live Around The World                    |     11 |
+| Miles Davis               | In A Silent Way                          |      2 |
+| The Rolling Stones        | Exile On Main Street                     |     18 |
+| The Stone Roses           | Second Coming                            |     13 |
+| Kylie Minogue             | Light Years                              |     13 |
+| Barry Adamson             | The Taming of the Shrewd                 |      4 |
+| Leftfield                 | Leftism                                  |     11 |
++---------------------------+------------------------------------------+--------+
+15 rows in set (0.00 sec)
+
+
 2) Repeat Question 1, but now display only those albums that have more
 than 10 tracks
 
+mysql> SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist INNER JOIN album USING (artist_id) INNER JOIN track
+USING (artist_id, album_id) GROUP BY artist_id, album_id
+HAVING COUNT(*) > 10;
++--------------------+------------------------------------------+--------+
+| artist_name        | album_name                               | tracks |
++--------------------+------------------------------------------+--------+
+| New Order          | Retro - John McCready FAN                |     15 |
+| New Order          | Substance (Disc 2)                       |     12 |
+| New Order          | Retro - Miranda Sawyer POP               |     14 |
+| New Order          | Retro - New Order / Bobby Gillespie LIVE |     15 |
+| New Order          | Substance 1987 (Disc 1)                  |     12 |
+| Miles Davis        | Live Around The World                    |     11 |
+| The Rolling Stones | Exile On Main Street                     |     18 |
+| The Stone Roses    | Second Coming                            |     13 |
+| Kylie Minogue      | Light Years                              |     13 |
+| Leftfield          | Leftism                                  |     11 |
++--------------------+------------------------------------------+--------+
+10 rows in set (0.01 sec)
+
+
 3) Repeat Question 1, but write it as a nested query.
+
+SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist INNER JOIN album USING (artist_id) INNER JOIN track
+USING (artist_id, album_id) GROUP BY artist_id, album_id;
+
+SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist INNER JOIN album USING (artist_id) WHERE (artist_id, album_id) = (SELECT artist_id, album_id FROM track) GROUP BY artist_id, album_id;
+
+
+SELECT artist.artist_name, album.album_name, COUNT(track.track_id) AS tracks FROM
+artist, album, track WHERE artist.artist_id = album.artist_id AND
+(album.artist_id, album.album_id) IN (SELECT track.artist_id, track.album_id FROM track)
+GROUP BY artist_id, album_id;
+
 
 4) What are the four types of nested queries? For each type, write a sample
 query on the music database. Try to use different keywords in each query,
 selecting from ANY, ALL, EXISTS (or NOT EXISTS) and IN (or NOT IN).
 
+* Scalar subquery (p.250)
+* Column subquery (p.254)
+* Row subquery (p.256)
+* Correlated subquery (p.257)
+
+Scalar subquery: all albums by New Order:
+
+mysql> SELECT album_name FROM album WHERE artist_id =
+(SELECT artist_id FROM artist WHERE artist_name = "New Order");
++------------------------------------------+
+| album_name                               |
++------------------------------------------+
+| Retro - John McCready FAN                |
+| Substance (Disc 2)                       |
+| Retro - Miranda Sawyer POP               |
+| Retro - New Order / Bobby Gillespie LIVE |
+| Power, Corruption & Lies                 |
+| Substance 1987 (Disc 1)                  |
+| Brotherhood                              |
++------------------------------------------+
+7 rows in set (0.00 sec)
+
+Column subquery: all albums by artists beginning with 'T':
+
+mysql> SELECT album_name FROM album WHERE artist_id = ANY
+(SELECT artist_id FROM artist WHERE artist_name LIKE "T%");
++----------------------+
+| album_name           |
++----------------------+
+| Exile On Main Street |
+| Second Coming        |
++----------------------+
+2 rows in set (0.00 sec)
+
+Row subquery: all the albums I've ever played a track from:
+
+mysql> SELECT album_name FROM album WHERE (artist_id, album_id) IN
+(SELECT artist_id, album_id FROM played);
++----------------------------+
+| album_name                 |
++----------------------------+
+| Retro - Miranda Sawyer POP |
+| Live Around The World      |
+| The Taming of the Shrewd   |
++----------------------------+
+3 rows in set (0.00 sec)
+
+Correlated subquery: all artists who have made an album beginning with the
+same initial letter as their name:
+
+mysql> SELECT artist_name FROM artist WHERE EXISTS
+(SELECT * FROM album WHERE album.artist_id = artist.artist_id
+                       AND LEFT(album_name, 1) = LEFT(artist_name, 1));
++-------------+
+| artist_name |
++-------------+
+| Leftfield   |
++-------------+
+1 row in set (0.00 sec)
+
+
 5) What is the difference between an INNER JOIN, a LEFT JOIN, and a RIGHT
 JOIN? Does the the order of tables matter in an INNER JOIN? Why or why not?
+
+-- No, because the rows returned as those which correlate across both tables.
+
 
 6) Why do these queries give different results? What does this tell you
 about using join conditions in the ON clause versus in the JOIN clause
@@ -37,3 +161,15 @@ LEFT JOIN played ON (track.artist_id=played.artist_id)
 WHERE track.album_id=played.album_id 
       AND track.artist_id=3 
 GROUP BY track_name;
+
+-- Firstly, they give different results because you are selecting different
+columns :-) (track.artist_id in the first, track.album_id in the second).
+However, that doesn't make any difference to the rows returned.
+
+Secondly, the results of the first query includes tracks which have not been
+played at all, whereas the results of the second do not. That's because
+including the condition in the LEFT JOIN brings it under the LEFT JOIN's
+"it doesn't matter if there's no match in the right table" condition,
+whereas for a WHERE clause there needs to be a match.
+track.album_id=played.album_id won't match if there's no row in the played
+table.
