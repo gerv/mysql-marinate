@@ -59,6 +59,8 @@ HAVING COUNT(*) > 10;
 
 3) Repeat Question 1, but write it as a nested query.
 
+XXX
+
 SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
 artist INNER JOIN album USING (artist_id) INNER JOIN track
 USING (artist_id, album_id) GROUP BY artist_id, album_id;
@@ -148,25 +150,21 @@ JOIN? Does the the order of tables matter in an INNER JOIN? Why or why not?
 about using join conditions in the ON clause versus in the WHERE clause
 for LEFT (and RIGHT) JOINs?
 
-SELECT track_name, track.artist_id, COUNT(played) 
-FROM track 
-LEFT JOIN played ON (track.artist_id=played.artist_id 
-          AND track.album_id=played.album_id) 
-WHERE track.artist_id=3 
-GROUP BY track_name,track.artist_id;
-
 SELECT track_name, track.album_id, COUNT(played) 
-FROM track 
-LEFT JOIN played ON (track.artist_id=played.artist_id) 
-WHERE track.album_id=played.album_id 
-      AND track.artist_id=3 
-GROUP BY track_name,track.artist_id;
+FROM track
+LEFT JOIN played ON (track.track_id=played.track_id 
+AND track.album_id=played.album_id)
+WHERE track.artist_id=3
+GROUP BY track_name, track.album_id;
 
--- Firstly, they give different results because you are selecting different
-columns :-) (track.artist_id in the first, track.album_id in the second).
-However, that doesn't make any difference to the rows returned.
+SELECT track_name, track.album_id, COUNT(played)
+FROM track
+LEFT JOIN played ON (track.album_id=played.album_id)
+WHERE track.track_id=played.track_id
+AND track.artist_id=3
+GROUP BY track_name, track.album_id;
 
-Secondly, the results of the first query includes tracks which have not been
+-- The results of the first query includes tracks which have not been
 played at all, whereas the results of the second do not. That's because
 including the condition in the LEFT JOIN brings it under the LEFT JOIN's
 "it doesn't matter if there's no match in the right table" condition,
