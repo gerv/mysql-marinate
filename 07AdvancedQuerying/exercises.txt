@@ -59,15 +59,33 @@ HAVING COUNT(*) > 10;
 
 3) Repeat Question 1, but write it as a nested query.
 
-XXX
+-- Sorry, tried about 50 different things, but can't figure this out. :-(
+The query is too complicated and all the bits are inter-related; if I try
+and convert one of the INNER JOINs to a nested query, the other parts
+complain about bits missing.
+
+Original from Q1:
 
 SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
 artist INNER JOIN album USING (artist_id) INNER JOIN track
 USING (artist_id, album_id) GROUP BY artist_id, album_id;
 
+Attempts:
+
+SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist INNER JOIN track
+USING (artist_id, album_id) WHERE artist_id = (SELECT artist_id FROM album) GROUP BY artist_id, album_id;
+
+SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist INNER JOIN album USING (artist_id) WHERE track IN (SELECT * FROM track WHERE artist.artist_id = track.artist_id AND album.album_id = track.album_id)
+GROUP BY artist_id, album_id;
+
+SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
+artist, album WHERE artist_id = (SELECT artist_id FROM album) INNER JOIN track
+USING (artist_id, album_id) GROUP BY artist_id, album_id;
+
 SELECT artist.artist_name, album.album_name, COUNT(*) AS tracks FROM
 artist INNER JOIN album USING (artist_id) WHERE (artist_id, album_id) = (SELECT artist_id, album_id FROM track) GROUP BY artist_id, album_id;
-
 
 SELECT artist.artist_name, album.album_name, COUNT(track.track_id) AS tracks FROM
 artist, album, track WHERE artist.artist_id = album.artist_id AND
