@@ -4,9 +4,20 @@ Exercises for Chapter 8
 which has its values separated by tabs, into the details table.
  Hint: the tab character is shown with the \t escape sequence.
 
+LOAD DATA INFILE "/tmp/academics.tsv" INTO TABLE details FIELDS TERMINATED BY '\t';
+
+
 2) When would you need to insert data using a query?
 
+If the data you are inserting was in a form other than that compatible with
+a SELECT statement - e.g. a file on disk, or in another table or database.
+
+
 3) What’s the difference between REPLACE and INSERT IGNORE?
+
+If the data already exists, INSERT IGNORE ignores that row and keeps going,
+whereas REPLACE replaces the old data with new data and keeps going.
+
 
 4) What can you tell from this output produced by the EXPLAIN command?
 
@@ -25,6 +36,23 @@ which has its values separated by tabs, into the details table.
     ... |      12 | NULL  |  570 | Using where; Using index; Distinct |
     ... +---------+-------+------+------------------------------------+
     3 rows in set (0.00 sec)
+
+* We are dealing with a single supervisor specified in the query, and that
+  supervisor can be found using the primary key (length 4, so perhaps an
+  integer ID rather than a name)
+
+* We are processing all 95 rows of the student table, which appears to have no
+  keys (or no useful ones)
+
+* The last row is weird because there are no candidate keys and yet a primary
+  key is used.
+
+Is the query something like:
+
+SELECT * from student INNER JOIN supervises USING (student_id) WHERE supervises.supervisor_name = (SELECT name FROM supervisor WHERE id = "4")
+
+? Although that would be a weird way of constructing the 'supervises' table...
+
 
 5) What can you tell from this output produced by the EXPLAIN command?
 
@@ -57,4 +85,18 @@ which has its values separated by tabs, into the details table.
     ...+-----------------------------+
     5 rows in set (0.01 sec)
 
+* This query is creating the UNION of two very similar queries which relate
+  to the "played" and "track" tables.
 
+* Each of the two subqueries looks up certain data in the played table, and
+  matches it with the track table.
+
+So the query could be something like:
+
+SELECT track_name FROM track INNER JOIN played USING (artist_id, album_id, track_id) WHERE track_name LIKE "A%"
+UNION
+SELECT track_name FROM track INNER JOIN played USING (artist_id, album_id, track_id) WHERE track_name LIKE "B%"
+
+(EXPLAINing the above query gives the same output apart from it notes the
+WHERE clauses and doesn't mention filesort; but if you remove the WHEREs, the
+two queries are identical!)
